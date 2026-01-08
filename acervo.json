@@ -123,7 +123,7 @@
     ]
   },
   {
-    "title": "Chá revelçã bege",
+    "title": "Chá revelção bege",
     "description": "",
     "categorias": [
       "Infantil"
@@ -435,19 +435,19 @@
     ]
   },
   {
-    "title": "Geométrico azul",
+    "title": "Jesus é meu herói",
     "description": "",
     "categorias": [
       "Infantil"
     ],
     "images": [
-      "images/acervo/geométrico azul/1.png",
-      "images/acervo/geométrico azul/2.png",
-      "images/acervo/geométrico azul/3.png",
-      "images/acervo/geométrico azul/4.png",
-      "images/acervo/geométrico azul/5.png",
-      "images/acervo/geométrico azul/6.png",
-      "images/acervo/geométrico azul/7.png"
+      "images/acervo/jesus é meu herói/1.png",
+      "images/acervo/jesus é meu herói/2.png",
+      "images/acervo/jesus é meu herói/3.png",
+      "images/acervo/jesus é meu herói/4.png",
+      "images/acervo/jesus é meu herói/5.png",
+      "images/acervo/jesus é meu herói/6.png",
+      "images/acervo/jesus é meu herói/7.png"
     ]
   },
   {
@@ -596,6 +596,20 @@
       "images/acervo/safari/1.png",
       "images/acervo/safari/2.png",
       "images/acervo/safari/3.png"
+    ]
+  },
+  {
+    "title": "Sereia",
+    "description": "",
+    "categorias": [
+      "Infantil"
+    ],
+    "images": [
+      "images/acervo/sereia/1.png",
+      "images/acervo/sereia/2.png",
+      "images/acervo/sereia/3.png",
+      "images/acervo/sereia/4.png",
+      "images/acervo/sereia/5.png"
     ]
   },
   {
