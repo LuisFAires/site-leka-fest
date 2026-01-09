@@ -2,7 +2,7 @@ let fullAcervo = [];
 
 async function loadAcervo() {
     try {
-        const res = await fetch('acervo.json');
+        const res = await fetch('admin/acervo.json');
         fullAcervo = await res.json();
         renderAcervo(fullAcervo);
     } catch (e) {
@@ -18,7 +18,7 @@ function renderAcervo(acervo) {
     grid.innerHTML = acervo.map(tema => `
       <article class="card">
         <div class="card-images">
-          ${(tema.images || []).map(img => `<img src="${img}" alt="${tema.title}" class="card-img">`).join('')}
+          ${(tema.images || []).map(img => `<img src="admin/acervo${img}" alt="${tema.title}" class="card-img">`).join('')}
         </div>
         <div class="card-content">
           <h3>${tema.title}</h3>
