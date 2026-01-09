@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>CRUD JSON com Busca</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(to right, #ff9ec3, #a8d8ea);
+      color: #2d3748;
+    }
+
+    header {
+      padding: 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      background-color: #fff;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    .search {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+    }
+
+    input,
+    textarea {
+      border: 1px solid #d1d5db;
+      padding: 10px;
+      border-radius: 8px;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    input[type="file"] {
+      border: none;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .item {
+      border: 1px solid #bbb;
+      border-radius: 10px;
+      padding: 12px;
+      cursor: grab;
+      transition: all 0.2s ease;
+    }
+
+    .item:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .item.drag-over {
+      background: #f0f9ff;
+      border: 2px dashed #6366f1;
+    }
+
+    .item h3 {
+      margin: 0 0 6px 0;
+    }
+
+    .tags,
+    .images,
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .tag {
+      background: #a8d8ea;
+      color: var(--text);
+      padding: 6px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+
+    }
+
+    .images {
+      margin: 6px 0;
+    }
+
+    .images img {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 6px;
+    }
+
+    #imagePreviews img {
+      max-width: 200px;
+      max-height: 200px;
+    }
+
+    #imagePreviews > div {
+      position: relative;
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+
+    #imagePreviews > div.dragging-image {
+      opacity: 0.5;
+    }
+
+    #imagePreviews > div.drag-over-image {
+      transform: scale(1.05);
+      border: 2px solid #6366f1;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: #ffffff;
+    }
+
+    button.danger {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .texto {
+      font-size: 20px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.visible {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      float: right;
+      background: 0;
+      font-size: 40px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-viewer-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-viewer-modal.visible {
+      display: flex;
+    }
+
+    .image-viewer-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+    }
+
+    .image-viewer-content img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    .image-viewer-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 36px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .image-viewer-close:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .images img {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .images img:hover {
+      transform: scale(1.1);
+    }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>CRUD JSON</h1>
+    <div class="search">
+      <input id="searchInput" type="text" placeholder="Buscar por título, categoria ou caminho de imagem..." />
+      <button id="clearSearch">Limpar</button>
+    </div>
+    <button id="reloadBtn">Recarregar</button>
+    <button class="primary" id="newItemBtn" title="Criar um novo item">+ Novo Item</button>
+  </header>
+
+  <div class="container">
+    <section class="card">
+      <div id="list" class="list"></div>
+    </section>
+  </div>
+
+  <div class="modal" id="formModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose" title="Fechar">×</button>
+      <section>
+        <h2>Formulário</h2>
+        <span class="texto">Use vírgulas para separar categorias.</span>
+        <div class="row">
+          <div>
+            <label>Título</label>
+            <input id="title" type="text" placeholder="Ex.: Arraiá" />
+          </div>
+          <div>
+            <label>Categorias</label>
+            <input id="categorias" type="text" placeholder="Ex.: Data sazonal, Festa" />
+          </div>
+        </div>
+        <div>
+          <label>Descrição</label>
+          <textarea id="description" rows="3" placeholder="Descrição opcional"></textarea>
+        </div>
+        <div>
+          <label>Imagens</label>
+          <input type="file" id="imageUpload" multiple accept="image/*" />
+          <div id="imagePreviews" class="images" style="margin-top: 12px;"></div>
+        </div>
+        <div class="actions">
+          <button class="primary" id="saveBtn">Salvar (Criar/Atualizar)</button>
+          <button id="resetForm">Limpar formulário</button>
+          <button class="danger" id="deleteBtn" title="Exclui pelo título atual">Excluir</button>
+        </div>
+        <div class="texto" id="status"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="image-viewer-modal" id="imageViewerModal">
+    <div class="image-viewer-content">
+      <button class="image-viewer-close" id="imageViewerClose" title="Fechar">×</button>
+      <img id="imageViewerImg" alt="Visualização" />
+    </div>
+  </div>
+
+  <script>
+    const listEl = document.getElementById('list');
+    const searchInput = document.getElementById('searchInput');
+    const formModal = document.getElementById('formModal');
+    const titleEl = document.getElementById('title');
+    const categoriasEl = document.getElementById('categorias');
+    const imageUpload = document.getElementById('imageUpload');
+    const statusEl = document.getElementById('status');
+    const imagePreviewsEl = document.getElementById('imagePreviews');
+    const imageViewerModal = document.getElementById('imageViewerModal');
+    const imageViewerImg = document.getElementById('imageViewerImg');
+
+    let items = [];
+    let currentImages = [];
+    let originalImages = [];
+    let pendingFiles = [];
+
+    //Escapes special HTML characters so they don’t break markup.
+    const escape = str => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    //Splits a comma-separated string into a clean array of values
+    const parse = str => str.split(',').map(s => s.trim()).filter(s => s);
+
+    function updateImagePreviews() {
+      const allImagesHTML = [
+        // Imagens existentes
+        ...currentImages.map((img, idx) =>
+          `<div style="position: relative; display: inline-block;" draggable="true" data-image-index="${idx}" data-image-type="existing">
+            <img src="/acervo/${escape(img)}" data-image="${escape(img)}" alt="miniatura" title="${escape(img)}" style="cursor: grab;" />
+            <button type="button" class="remove-image-btn" data-image-path="${escape(img)}" style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; padding: 0; display: flex; align-items: center; justify-content: center;">×</button>
+          </div>`
+        ),
+        // Arquivos pendentes de upload
+        ...pendingFiles.map((file, idx) => {
+          const reader = new FileReader();
+          const fileKey = `pending-${file.name}-${file.size}-${file.lastModified}`;
+          reader.onload = (e) => {
+            const img = document.querySelector(`img[data-file-key-img="${fileKey}"]`);
+            if (img) img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          return `<div style="position: relative; display: inline-block; opacity: 0.6;" draggable="true" data-pending-index="${idx}" data-image-type="pending">
+            <img src="" data-file-key-img="${fileKey}" alt="nova miniatura" style="max-width: 150px; max-height: 150px; border-radius: 6px; border: 2px dashed #a8d8ea; object-fit: cover; cursor: grab;" />
+            <span style="position: absolute; top: 2px; left: 2px; background: #fbbf24; color: #000; padding: 2px 4px; border-radius: 3px; font-size: 10px;">NOVO</span>
+            <button type="button" class="remove-pending-btn" data-file-key="${fileKey}" style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; padding: 0; display: flex; align-items: center; justify-content: center;">×</button>
+          </div>`;
+        })
+      ].join('');
+
+      imagePreviewsEl.innerHTML = allImagesHTML || '<div style="color: #9ca3af;">Nenhuma imagem selecionada</div>';
+      attachImageViewerListeners();
+      attachRemoveImageListeners();
+      attachRemovePendingListeners();
+      setupImageDragAndDrop();
+    }
+
+    let draggedImageElement = null;
+
+    function setupImageDragAndDrop() {
+      const imageContainers = imagePreviewsEl.querySelectorAll('[draggable="true"]');
+      
+      imageContainers.forEach(container => {
+        container.addEventListener('dragstart', (e) => {
+          draggedImageElement = container;
+          container.classList.add('dragging-image');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+
+        container.addEventListener('dragend', () => {
+          container.classList.remove('dragging-image');
+          imageContainers.forEach(el => el.classList.remove('drag-over-image'));
+          draggedImageElement = null;
+        });
+
+        container.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          
+          if (draggedImageElement && draggedImageElement !== container) {
+            container.classList.add('drag-over-image');
+          }
+        });
+
+        container.addEventListener('dragleave', () => {
+          container.classList.remove('drag-over-image');
+        });
+
+        container.addEventListener('drop', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (draggedImageElement && draggedImageElement !== container) {
+            const draggedType = draggedImageElement.dataset.imageType;
+            const targetType = container.dataset.imageType;
+            
+            // Apenas permitir reordenar imagens do mesmo tipo
+            if (draggedType === targetType) {
+              if (draggedType === 'existing') {
+                const draggedIdx = parseInt(draggedImageElement.dataset.imageIndex);
+                const targetIdx = parseInt(container.dataset.imageIndex);
+                
+                // Trocar posições
+                [currentImages[draggedIdx], currentImages[targetIdx]] = [currentImages[targetIdx], currentImages[draggedIdx]];
+              } else if (draggedType === 'pending') {
+                const draggedIdx = parseInt(draggedImageElement.dataset.pendingIndex);
+                const targetIdx = parseInt(container.dataset.pendingIndex);
+                
+                // Trocar posições
+                [pendingFiles[draggedIdx], pendingFiles[targetIdx]] = [pendingFiles[targetIdx], pendingFiles[draggedIdx]];
+              }
+              
+              updateImagePreviews();
+            }
+          }
+        });
+      });
+    }
+
+    function attachImageViewerListeners() {
+      imagePreviewsEl.querySelectorAll('img').forEach(img => {
+        img.addEventListener('click', () => {
+          // Use the image's src when available (works for existing and pending previews)
+          imageViewerImg.src = img.src || (img.dataset.image ? `/acervo/${img.dataset.image}` : '');
+          imageViewerModal.classList.add('visible');
+        });
+      });
+    }
+
+    function attachRemoveImageListeners() {
+      imagePreviewsEl.querySelectorAll('.remove-image-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const imagePath = btn.dataset.imagePath;
+          const idx = currentImages.indexOf(imagePath);
+          if (idx > -1) {
+            currentImages.splice(idx, 1);
+            updateImagePreviews();
+          }
+        });
+      });
+    }
+
+    function attachRemovePendingListeners() {
+      imagePreviewsEl.querySelectorAll('.remove-pending-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const fileKey = btn.dataset.fileKey;
+          const idx = pendingFiles.findIndex(file => {
+            const key = `pending-${file.name}-${file.size}-${file.lastModified}`;
+            return key === fileKey;
+          });
+          if (idx > -1) {
+            pendingFiles.splice(idx, 1);
+            updateImagePreviews();
+          }
+        });
+      });
+    }
+
+    function closeImageViewer() {
+      imageViewerModal.classList.remove('visible');
+    }
+
+    function setStatus(msg, type = 'info') {
+      console.log(msg);
+      statusEl.textContent = msg;
+      statusEl.style.color = type === 'error' ? '#fca5a5' : type === 'success' ? '#86efac' : '#9ca3af';
+    }
+
+    async function fetchItems() {
+      try {
+        items = await (await fetch('/api/items')).json();
+        render();
+        setStatus(`Carregado: ${items.length} itens`, 'success');
+      } catch (e) {
+        setStatus('Falha ao carregar itens', 'error');
+      }
+    }
+
+    function render() {
+      const q = searchInput.value.trim().toLowerCase();
+      const filtered = q ? items.filter(it =>
+        (it.title || '').toLowerCase().includes(q) ||
+        (it.description || '').toLowerCase().includes(q) ||
+        (it.categorias || []).some(c => c.toLowerCase().includes(q)) ||
+        (it.images || []).some(img => img.toLowerCase().includes(q))
+      ) : items;
+
+      listEl.innerHTML = filtered.length ? filtered.map((item, idx) => `
+        <div class="item" draggable="true" data-title="${encodeURIComponent(item.title)}">
+          <h3>${escape(item.title)}</h3>
+          <div class="texto">${escape(item.description || '')}</div>
+          <div class="tags">${(item.categorias || []).map(c => `<span class="tag">${escape(c)}</span>`).join('')}</div>
+          <div class="images">${(item.images || []).map(img => `<img src="/acervo/${escape(img)}" alt="miniatura" title="${escape(img)}" data-image="${escape(img)}" class="thumbnail-image" />`).join('')}</div>
+          <div class="actions">
+            <button class="editBtn" data-title="${encodeURIComponent(item.title)}">Editar</button>
+            <button class="deleteBtn danger" data-title="${encodeURIComponent(item.title)}">Excluir</button>
+          </div>
+        </div>
+      `).join('') : '<div class="texto">Nenhum item encontrado.</div>';
+
+      document.querySelectorAll('.editBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = items.find(i => i.title.toLowerCase() === decodeURIComponent(btn.dataset.title).toLowerCase());
+          if (item) {
+            titleEl.value = item.title || '';
+            document.getElementById('description').value = item.description || '';
+            categoriasEl.value = (item.categorias || []).join(', ');
+            currentImages = [...(item.images || [])];
+            originalImages = [...(item.images || [])];
+            setStatus(`Editando: ${item.title}`);
+            updateImagePreviews();
+            formModal.classList.add('visible');
+          }
+        });
+      });
+
+      document.querySelectorAll('.deleteBtn').forEach(btn => {
+        btn.addEventListener('click', () => deleteItem(decodeURIComponent(btn.dataset.title)));
+      });
+
+      setupDragAndDrop();
+      attachImageViewerListenersToList();
+    }
+
+    let draggedTitle = null;
+
+    function setupDragAndDrop() {
+      const itemElements = document.querySelectorAll('.item');
+      
+      itemElements.forEach(itemEl => {
+        itemEl.addEventListener('dragstart', (e) => {
+          draggedTitle = itemEl.dataset.title;
+          itemEl.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/html', itemEl.innerHTML);
+        });
+
+        itemEl.addEventListener('dragend', () => {
+          itemEl.classList.remove('dragging');
+          itemElements.forEach(el => el.classList.remove('drag-over'));
+          draggedTitle = null;
+        });
+
+        itemEl.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          
+          const draggedEl = document.querySelector('.item.dragging');
+          if (draggedEl && draggedEl !== itemEl) {
+            itemEl.classList.add('drag-over');
+          }
+        });
+
+        itemEl.addEventListener('dragleave', () => {
+          itemEl.classList.remove('drag-over');
+        });
+
+        itemEl.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (draggedTitle && draggedTitle !== itemEl.dataset.title) {
+            const draggedItem = items.find(i => i.title.toLowerCase() === decodeURIComponent(draggedTitle).toLowerCase());
+            const targetItem = items.find(i => i.title.toLowerCase() === decodeURIComponent(itemEl.dataset.title).toLowerCase());
+            
+            if (draggedItem && targetItem) {
+              const draggedIndex = items.indexOf(draggedItem);
+              const targetIndex = items.indexOf(targetItem);
+              
+              // Trocar posições
+              [items[draggedIndex], items[targetIndex]] = [items[targetIndex], items[draggedIndex]];
+              
+              // Atualizar no servidor
+              try {
+                const res = await fetch('/api/items', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(items),
+                });
+                
+                if (res.ok) {
+                  render();
+                  setStatus('Ordem atualizada', 'success');
+                } else {
+                  throw new Error('Falha ao atualizar ordem');
+                }
+              } catch (e) {
+                setStatus(e.message, 'error');
+                fetchItems(); // Recarregar para desfazer
+              }
+            }
+          }
+        });
+      });
+    }
+
+    function attachImageViewerListenersToList() {
+      document.querySelectorAll('.thumbnail-image').forEach(img => {
+        img.addEventListener('click', () => {
+          imageViewerImg.src = img.src || (img.dataset.image ? `/acervo/${img.dataset.image}` : '');
+          imageViewerModal.classList.add('visible');
+        });
+      });
+    }
+
+    async function saveItem() {
+      const title = titleEl.value.trim();
+      if (!title) return setStatus('Título é obrigatório', 'error');
+
+      try {
+        // Fazer upload dos arquivos pendentes
+        if (pendingFiles.length > 0) {
+          const formData = new FormData();
+          pendingFiles.forEach(file => {
+            formData.append('files', file);
+          });
+
+          const res = await fetch(`/api/upload/${encodeURIComponent(title)}`, {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!res.ok) {
+            throw new Error('Erro ao fazer upload dos arquivos');
+          }
+
+          const data = await res.json();
+          if (data.success && data.images) {
+            data.images.forEach(img => {
+              const imagePath = img.startsWith('/') ? img : `/${img}`;
+              if (!currentImages.includes(imagePath)) {
+                currentImages.push(imagePath);
+              }
+            });
+          }
+          pendingFiles = [];
+        }
+
+        const exists = items.some(i => i.title.toLowerCase() === title.toLowerCase());
+        const res = await fetch(exists ? `/api/items/${encodeURIComponent(title)}` : '/api/items', {
+          method: exists ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            description: document.getElementById('description').value.trim(),
+            categorias: parse(categoriasEl.value),
+            images: currentImages,
+          }),
+        });
+
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Falha ao salvar');
+
+        // Deletar imagens que foram removidas
+        const removedImages = originalImages.filter(img => !currentImages.includes(img));
+        for (const imagePath of removedImages) {
+          try {
+            await fetch('/api/image', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imagePath }),
+            });
+          } catch (e) {
+            console.error('Erro ao deletar imagem:', imagePath);
+          }
+        }
+
+        await fetchItems();
+        setStatus(exists ? 'Item atualizado' : 'Item criado', 'success');
+        clearForm();
+      } catch (e) {
+        setStatus(e.message, 'error');
+      }
+    }
+
+    async function deleteItem(title) {
+      if (!confirm(`Excluir "${title}"?`)) return;
+      try {
+        // Encontrar o item para obter as imagens
+        const item = items.find(i => i.title.toLowerCase() === title.toLowerCase());
+        
+        // Deletar todas as imagens do item
+        if (item && item.images && item.images.length > 0) {
+          for (const imagePath of item.images) {
+            try {
+              await fetch('/api/image', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imagePath }),
+              });
+            } catch (e) {
+              console.error('Erro ao deletar imagem:', imagePath);
+            }
+          }
+        }
+
+        // Deletar o item
+        const res = await fetch(`/api/items/${encodeURIComponent(title)}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Falha ao excluir');
+        
+        await fetchItems();
+        setStatus('Item e imagens excluídos', 'success');
+      } catch (e) {
+        setStatus(e.message, 'error');
+      }
+    }
+
+    function clearForm() {
+      titleEl.value = '';
+      document.getElementById('description').value = '';
+      categoriasEl.value = '';
+      currentImages = [];
+      originalImages = [];
+      pendingFiles = [];
+      imageUpload.value = '';
+      updateImagePreviews();
+      formModal.classList.remove('visible');
+      setStatus('');
+    }
+
+    searchInput.addEventListener('input', render);
+    document.getElementById('clearSearch').addEventListener('click', () => {
+      searchInput.value = '';
+      render();
+    });
+    document.getElementById('reloadBtn').addEventListener('click', fetchItems);
+    document.getElementById('newItemBtn').addEventListener('click', () => {
+      clearForm();
+      formModal.classList.add('visible');
+    });
+    document.getElementById('saveBtn').addEventListener('click', saveItem);
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      const t = titleEl.value.trim();
+      if (t) deleteItem(t);
+      else setStatus('Informe o título para excluir', 'error');
+    });
+    imageUpload.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      const title = titleEl.value.trim();
+
+      if (!title) {
+        setStatus('Defina o título antes de adicionar imagens', 'error');
+        imageUpload.value = '';
+        return;
+      }
+
+      if (files.length === 0) return;
+
+      pendingFiles.push(...files);
+      updateImagePreviews();
+      setStatus(`${files.length} arquivo(s) selecionado(s). Clique em Salvar para fazer upload.`, 'info');
+      imageUpload.value = '';
+    });
+
+    document.getElementById('resetForm').addEventListener('click', clearForm);
+    document.getElementById('modalClose').addEventListener('click', clearForm);
+    document.getElementById('imageViewerClose').addEventListener('click', closeImageViewer);
+    imageViewerModal.addEventListener('click', (e) => {
+      if (e.target === imageViewerModal) closeImageViewer();
+    });
+
+    fetchItems();
+  </script>
+</body>
+
+</html>
