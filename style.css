@@ -135,7 +135,7 @@ h2 {
     flex-direction: column;
     gap: 0.6rem;
     transition: transform 0.3s ease;
-    flex: 0 0 300px;
+    flex: 0.5 0 300px;
     justify-content: space-between;
 }
 
@@ -225,7 +225,7 @@ h2 {
 
 .card:hover .card-img:nth-child(-n+4) {
     display: unset;
-    max-width: 140px;
+    max-width: 48%;
 }
 
 .card-images {
