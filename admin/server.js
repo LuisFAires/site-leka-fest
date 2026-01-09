@@ -17,7 +17,6 @@ const upload = multer({ dest: ACERVO_DIR });
 // Configurar livereload
 const liveReloadServer = livereload.createServer();
 liveReloadServer.watch(path.join(__dirname, '.'));
-
 app.use(connectLiveReload());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
@@ -25,14 +24,13 @@ app.use(express.static(path.join(__dirname, '.')));
 // Util: ler JSON
 function readData() {
   try {
-    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch (e) {
+    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  } catch {
     return [];
   }
 }
 
-// Util: escrever JSON (sobrescrever)
+// Util: sobrescrever JSON
 function writeData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
@@ -40,12 +38,9 @@ function writeData(data) {
 // Util: deletar pasta se estiver vazia
 function deleteEmptyDir(dirPath) {
   try {
-    if (fs.existsSync(dirPath)) {
-      const files = fs.readdirSync(dirPath);
-      if (files.length === 0) {
-        fs.rmdirSync(dirPath);
-        return true;
-      }
+    if (fs.existsSync(dirPath) && fs.readdirSync(dirPath).length === 0) {
+      fs.rmdirSync(dirPath);
+      return true;
     }
   } catch (e) {
     console.error('Erro ao deletar pasta:', e.message);
@@ -53,43 +48,41 @@ function deleteEmptyDir(dirPath) {
   return false;
 }
 
-// Listar todos
+// GET: Listar todos os itens
 app.get('/api/items', (req, res) => {
-  const data = readData();
-  res.json(data);
+  res.json(readData());
 });
 
-// Criar novo
+// POST: Criar novo item
 app.post('/api/items', (req, res) => {
   const { title, description = '', categorias = [], images = [] } = req.body;
 
   if (!title || typeof title !== 'string') {
-    return res.status(400).json({ error: 'title é obrigatório e deve ser string' });
+    return res.status(400).json({ error: 'Título é obrigatório' });
   }
 
   const data = readData();
 
   // Evitar duplicados por título
   if (data.some(item => item.title.toLowerCase() === title.toLowerCase())) {
-    return res.status(409).json({ error: 'Já existe um item com esse title' });
+    return res.status(409).json({ error: 'Já existe um item com esse título' });
   }
 
-  const newItem = { title, description, categorias, images };
-  data.unshift(newItem);
+  data.unshift({ title, description, categorias, images });
   writeData(data);
-  res.status(201).json(newItem);
+  res.status(201).json({ title, description, categorias, images });
 });
 
-// Atualizar por título (PUT)
+// PUT: Atualizar item por título
 app.put('/api/items/:title', (req, res) => {
-  const paramTitle = req.params.title;
   const { title, description, categorias, images } = req.body;
-
   const data = readData();
-  const index = data.findIndex(item => item.title.toLowerCase() === paramTitle.toLowerCase());
-  if (index === -1) return res.status(404).json({ error: 'Item não encontrado' });
+  const index = data.findIndex(item => item.title.toLowerCase() === req.params.title.toLowerCase());
 
-  // Atualiza mantendo estrutura
+  if (index === -1) {
+    return res.status(404).json({ error: 'Item não encontrado' });
+  }
+
   const updated = {
     title: title ?? data[index].title,
     description: description ?? data[index].description,
@@ -102,7 +95,7 @@ app.put('/api/items/:title', (req, res) => {
     updated.title.toLowerCase() !== data[index].title.toLowerCase() &&
     data.some((it, i) => i !== index && it.title.toLowerCase() === updated.title.toLowerCase())
   ) {
-    return res.status(409).json({ error: 'Conflito: já existe item com o novo title' });
+    return res.status(409).json({ error: 'Já existe outro item com esse título' });
   }
 
   data[index] = updated;
@@ -110,19 +103,21 @@ app.put('/api/items/:title', (req, res) => {
   res.json(updated);
 });
 
-// Excluir por título
+// DELETE: Excluir item por título
 app.delete('/api/items/:title', (req, res) => {
-  const paramTitle = req.params.title;
   const data = readData();
-  const index = data.findIndex(item => item.title.toLowerCase() === paramTitle.toLowerCase());
-  if (index === -1) return res.status(404).json({ error: 'Item não encontrado' });
+  const index = data.findIndex(item => item.title.toLowerCase() === req.params.title.toLowerCase());
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Item não encontrado' });
+  }
 
   const removed = data.splice(index, 1)[0];
   writeData(data);
   res.json(removed);
 });
 
-// Upload de múltiplas imagens
+// POST: Upload de imagens
 app.post('/api/upload/:title', upload.array('files'), (req, res) => {
   const { title } = req.params;
   const files = req.files;
@@ -131,8 +126,8 @@ app.post('/api/upload/:title', upload.array('files'), (req, res) => {
     return res.status(400).json({ error: 'Nenhum arquivo foi enviado' });
   }
 
-  const formattedTitle = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  const dirPath = path.join(ACERVO_DIR, formattedTitle);
+  const dirName = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const dirPath = path.join(ACERVO_DIR, dirName);
 
   // Criar diretório se não existir
   if (!fs.existsSync(dirPath)) {
@@ -140,14 +135,11 @@ app.post('/api/upload/:title', upload.array('files'), (req, res) => {
   }
 
   const uploadedFiles = [];
-
   files.forEach(file => {
-    const originalName = file.originalname;
-    const finalPath = path.join(dirPath, originalName);
-    
     try {
+      const finalPath = path.join(dirPath, file.originalname);
       fs.renameSync(file.path, finalPath);
-      uploadedFiles.push(`${formattedTitle}/${originalName}`);
+      uploadedFiles.push(`${dirName}/${file.originalname}`);
     } catch (e) {
       fs.unlinkSync(file.path);
     }
@@ -156,7 +148,7 @@ app.post('/api/upload/:title', upload.array('files'), (req, res) => {
   res.json({ success: true, images: uploadedFiles });
 });
 
-// Deletar uma imagem específica
+// DELETE: Excluir imagem
 app.delete('/api/image', (req, res) => {
   const { imagePath } = req.body;
 
@@ -174,12 +166,8 @@ app.delete('/api/image', (req, res) => {
   try {
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
-      
-      // Tentar deletar a pasta se estiver vazia
-      const dirPath = path.dirname(fullPath);
-      deleteEmptyDir(dirPath);
-      
-      res.json({ success: true, message: 'Imagem deletada' });
+      deleteEmptyDir(path.dirname(fullPath));
+      res.json({ success: true });
     } else {
       res.status(404).json({ error: 'Arquivo não encontrado' });
     }
@@ -188,59 +176,24 @@ app.delete('/api/image', (req, res) => {
   }
 });
 
-// Sobrescrever arquivo inteiro (opcional)
+// PUT: Reordenar itens (drag and drop)
 app.put('/api/items', (req, res) => {
   const body = req.body;
   if (!Array.isArray(body)) {
-    return res.status(400).json({ error: 'O corpo deve ser um array de itens' });
+    return res.status(400).json({ error: 'Deve ser um array de itens' });
   }
-  // Validação simples
-  const isValid = body.every(
-    it =>
-      it &&
-      typeof it.title === 'string' &&
-      typeof it.description === 'string' &&
-      Array.isArray(it.categorias) &&
-      Array.isArray(it.images)
+
+  const isValid = body.every(it =>
+    it && typeof it.title === 'string' && typeof it.description === 'string' &&
+    Array.isArray(it.categorias) && Array.isArray(it.images)
   );
-  if (!isValid) return res.status(400).json({ error: 'Estrutura inválida em algum item' });
+
+  if (!isValid) {
+    return res.status(400).json({ error: 'Estrutura inválida' });
+  }
 
   writeData(body);
-  res.json({ message: 'Arquivo sobrescrito com sucesso', count: body.length });
-});
-
-// Reordenar item (mover para cima ou para baixo)
-app.post('/api/reorder', (req, res) => {
-  const { title, direction } = req.body;
-  
-  if (!title || !direction || !['up', 'down'].includes(direction)) {
-    return res.status(400).json({ error: 'title e direction (up/down) são obrigatórios' });
-  }
-
-  const data = readData();
-  const index = data.findIndex(item => item.title.toLowerCase() === title.toLowerCase());
-  
-  if (index === -1) {
-    return res.status(404).json({ error: 'Item não encontrado' });
-  }
-
-  if (direction === 'up' && index === 0) {
-    return res.status(400).json({ error: 'Item já está no topo' });
-  }
-
-  if (direction === 'down' && index === data.length - 1) {
-    return res.status(400).json({ error: 'Item já está no final' });
-  }
-
-  // Trocar posição
-  if (direction === 'up') {
-    [data[index], data[index - 1]] = [data[index - 1], data[index]];
-  } else {
-    [data[index], data[index + 1]] = [data[index + 1], data[index]];
-  }
-
-  writeData(data);
-  res.json({ message: 'Item reordenado', data });
+  res.json({ message: 'Itens atualizados', count: body.length });
 });
 
 app.listen(PORT, () => {

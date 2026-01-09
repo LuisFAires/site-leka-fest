@@ -376,9 +376,9 @@
       ].join('');
 
       imagePreviewsEl.innerHTML = allImagesHTML || '<div style="color: #9ca3af;">Nenhuma imagem selecionada</div>';
-      attachImageViewerListeners();
-      attachRemoveImageListeners();
-      attachRemovePendingListeners();
+      setupImageViewerListeners();
+      setupRemoveImageListeners();
+      setupRemovePendingListeners();
       setupImageDragAndDrop();
     }
 
@@ -403,7 +403,6 @@
         container.addEventListener('dragover', (e) => {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
-          
           if (draggedImageElement && draggedImageElement !== container) {
             container.classList.add('drag-over-image');
           }
@@ -444,7 +443,7 @@
       });
     }
 
-    function attachImageViewerListeners() {
+    function setupImageViewerListeners() {
       imagePreviewsEl.querySelectorAll('img').forEach(img => {
         img.addEventListener('click', () => {
           // Use the image's src when available (works for existing and pending previews)
@@ -454,7 +453,7 @@
       });
     }
 
-    function attachRemoveImageListeners() {
+    function setupRemoveImageListeners() {
       imagePreviewsEl.querySelectorAll('.remove-image-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -468,7 +467,7 @@
       });
     }
 
-    function attachRemovePendingListeners() {
+    function setupRemovePendingListeners() {
       imagePreviewsEl.querySelectorAll('.remove-pending-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -548,7 +547,7 @@
       });
 
       setupDragAndDrop();
-      attachImageViewerListenersToList();
+      setupListImageViewerListeners();
     }
 
     let draggedTitle = null;
@@ -561,7 +560,6 @@
           draggedTitle = itemEl.dataset.title;
           itemEl.classList.add('dragging');
           e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/html', itemEl.innerHTML);
         });
 
         itemEl.addEventListener('dragend', () => {
@@ -623,7 +621,7 @@
       });
     }
 
-    function attachImageViewerListenersToList() {
+    function setupListImageViewerListeners() {
       document.querySelectorAll('.thumbnail-image').forEach(img => {
         img.addEventListener('click', () => {
           imageViewerImg.src = img.src || (img.dataset.image ? `/acervo/${img.dataset.image}` : '');
