@@ -181,11 +181,8 @@ header p {
     flex-wrap: wrap;
     justify-content: center;
     padding: 1rem;
-    background: #f9f9f9;
-    border-radius: 8px;
-    min-height: 180px;
     align-items: center;
-    height: 435px;
+    height: 475px;
 }
 
 .card-img {
@@ -274,25 +271,29 @@ header p {
     box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
 }
 
-.contact-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 1rem;
+.contact-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.contact-list li {
-    padding: 1rem;
-    background: #f9f9f9;
-    border-radius: 8px;
-    border-left: 4px solid var(--accent);
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px;
+    background-color: #f0f0f0;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    color: var(--text)
 }
 
 .site-footer {
     text-align: center;
     padding: 2rem 1rem;
-    color: var(--muted);
+    color: var(--text);
     font-size: 0.9rem;
 }
 
