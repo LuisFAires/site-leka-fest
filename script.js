@@ -12,6 +12,32 @@ async function loadAcervo() {
     }
 }
 
+async function loadkits() {
+    try {
+        const res = await fetch('https://script.google.com/macros/s/AKfycbxbDfChdeuyKj-PH8suzXOxB2iFyK7_2j7S-1zUOrHJy1QBq2LeHbp1g0fkqxFXYdqbMA/exec');
+        const kits = await res.json();
+        const grid = document.getElementById('kits-grid');
+        grid.innerHTML = kits.map(kit => `<article class="card"><h3>${kit.descrição}</h3><p>${kit.itens}</p><div class="prices"><p><strong>R$${kit['valor com desconto']}</strong> à vista</p><p>ou</p><p><strong>R$${kit['valor normal']}</strong> em até 6x</p></div></article>`).join('');
+    } catch (e) {
+        console.error('Erro ao carregar kits:', e);
+        document.getElementById('kits-grid').innerHTML =
+            '<p>Não foi possível carregar os kits agora.</p>';
+    }
+}
+
+async function loadAdicionais() {
+    try {
+        const res = await fetch('https://script.google.com/macros/s/AKfycbwpWM_bzQ6XNPSKeEramqZLsgGV3CwzQ1p_mJAF3gVgnB25KluQl1YhMLtsbhhbjlNe2Q/exec');
+        const adicionais = await res.json();
+        const grid = document.getElementById('adicionais-grid');
+        grid.innerHTML = adicionais.map(item => `<article class="card"><h3>${item.Descrição}</h3><p>R$${item.Valor},00</p></article>`).join('');
+    } catch (e) {
+        console.error('Erro ao carregar adicionais:', e);
+        document.getElementById('adicionais-grid').innerHTML =
+            '<p>Não foi possível carregar os adicionais agora.</p>';
+    }
+}
+
 function renderAcervo(acervo) {
     const grid = document.getElementById('acervo-grid');
 
@@ -90,6 +116,8 @@ function filterAcervo(query) {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAcervo();
+    loadkits();
+    loadAdicionais();
     const searchInput = document.getElementById('search-input');
     searchInput.addEventListener('input', (e) => {
         const filtered = filterAcervo(e.target.value);
