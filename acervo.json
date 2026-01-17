@@ -1,5 +1,24 @@
 [
   {
+    "title": "Harry Potter",
+    "description": "Entre no mundo mágico de Hogwarts com o tema Harry Potter! Uma decoração prática e completa que mistura feitiços, símbolos icônicos e o encanto das casas da escola de magia. Pegue os elementos temáticos, monte com facilidade e transforme sua festa em um verdadeiro banquete bruxo, cheio de mistério, aventura e diversão.",
+    "categorias": [
+      "Infantil menino/menina",
+      "Adulto masculino/feminino",
+      "Filme", 
+      "Personagem"
+    ],
+    "images": [
+      "/harry potter/1.webp",
+      "/harry potter/2.webp",
+      "/harry potter/3.webp",
+      "/harry potter/4.webp",
+      "/harry potter/5.webp",
+      "/harry potter/6.webp",
+      "/harry potter/7.webp"
+    ]
+  },
+  {
     "title": "Super Mario",
     "description": "Entre no mundo dos cogumelos com o tema Super Mario! Uma decoração prática e nostálgica. Pegue os blocos e estrelas, monte com facilidade e transforme sua festa em uma aventura cheia de cores e diversão.",
     "categorias": [
@@ -96,7 +115,7 @@
     "description": "Celebre com atitude e personalidade no tema Budweiser! Uma decoração prática e completa que mistura o vermelho icônico, detalhes marcantes e o clima descontraído da cerveja mais famosa do mundo. Pegue os elementos temáticos, monte com facilidade e transforme sua festa em um ambiente vibrante, perfeito para brindar bons momentos com estilo.",
     "categorias": [
       "Adulto masculino/feminino",
-      "Música"
+      "Bebida"
     ],
     "images": [
       "/budweiser/1.webp",
@@ -450,8 +469,6 @@
     "description": "Celebre com estilo e descontração com o tema Boteco! Esse kit de decoração é prático, divertido e completo, trazendo enfeites encantadores como cervejas, bebidas e bandejas douradas que criam o clima perfeito para reunir os amigos. Com montagem fácil e sem complicação, é só pegar, montar e festejar!",
     "categorias": [
       "Adulto masculino/feminino",
-      "Masculino",
-      "Feminino",
       "Vintage",
       "Bebida"
     ],
