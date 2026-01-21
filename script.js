@@ -1,10 +1,7 @@
-import acervoData from './acervo.json';
-
-let fullAcervo = [];
+import fullAcervo from './acervo.json';
 
 async function loadAcervo() {
     try {
-        fullAcervo = acervoData;
         renderAcervo(fullAcervo);
     } catch (e) {
         console.error('Erro ao carregar acervo:', e);
