@@ -1,9 +1,10 @@
+import acervoData from './acervo.json';
+
 let fullAcervo = [];
 
 async function loadAcervo() {
     try {
-        const res = await fetch('acervo.json');
-        fullAcervo = await res.json();
+        fullAcervo = acervoData;
         renderAcervo(fullAcervo);
     } catch (e) {
         console.error('Erro ao carregar acervo:', e);
@@ -67,7 +68,7 @@ function renderAcervo(acervo) {
     grid.innerHTML = acervo.map(tema => `
       <article class="card">
         <div class="card-images">
-          ${(tema.images || []).map(img => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img" loading="lazy">`).join('')}
+          ${(tema.images || []).map(img => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img">`).join('')}
         </div>
         <div class="card-content">
           <h3>${tema.title}</h3>
