@@ -38,13 +38,36 @@ async function loadAdicionais() {
     }
 }
 
+function initLazyLoading() {
+    const images = document.querySelectorAll('img[loading="lazy"]');
+    
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.style.opacity = '1';
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '500px'
+        });
+        
+        images.forEach(img => {
+            img.style.opacity = '0'; // Estado inicial durante carregamento
+            imageObserver.observe(img);
+        });
+    }
+}
+
 function renderAcervo(acervo) {
     const grid = document.getElementById('acervo-grid');
 
     grid.innerHTML = acervo.map(tema => `
       <article class="card">
         <div class="card-images">
-          ${(tema.images || []).map(img => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img">`).join('')}
+          ${(tema.images || []).map(img => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img" loading="lazy">`).join('')}
         </div>
         <div class="card-content">
           <h3>${tema.title}</h3>
@@ -58,6 +81,9 @@ function renderAcervo(acervo) {
         </div>
       </article>
     `).join('');
+    
+    // Initialize Intersection Observer for enhanced lazy-loading compatibility
+    initLazyLoading();
 
     // Add click event to open modal with carousel
     let currentImages = [];

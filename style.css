@@ -191,6 +191,8 @@ header p {
     max-height: 400px;
     border-radius: 6px;
     cursor: pointer;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    opacity: 1;
 }
 
 .card-img:hover {
