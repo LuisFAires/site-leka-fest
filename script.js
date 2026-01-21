@@ -68,7 +68,7 @@ function renderAcervo(acervo) {
     grid.innerHTML = acervo.map(tema => `
       <article class="card">
         <div class="card-images">
-          ${(tema.images || []).map(img => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img">`).join('')}
+          ${(tema.images || []).map(img => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img" loading="lazy">`).join('')}
         </div>
         <div class="card-content">
           <h3>${tema.title}</h3>
