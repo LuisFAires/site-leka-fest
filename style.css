@@ -200,11 +200,11 @@ header p {
 }
 
 .card-img:nth-child(n+2) {
-    display: none;
+    visibility: hidden;
 }
 
 .card:hover .card-img:nth-child(-n+4) {
-    display: block;
+    visibility: visible;
     max-width: 45%;
 }
 
