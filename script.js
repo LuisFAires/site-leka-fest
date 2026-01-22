@@ -41,18 +41,18 @@ function renderAcervo(acervo) {
 
     grid.innerHTML = acervo.map(tema => `
       <article class="card">
-        <div class="card-images">
-          ${(tema.images || []).map((img, index) => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img" loading="lazy"${index === 0 ? ' fetchpriority="high"' : ''}>`).join('')}
+        <div class="card-img-container">
+          ${(tema.images || []).map((img, index) => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img" loading="lazy"${index === 0 ? ' fetchpriority="high"' : 'style="display:none"'}>`).join('')}
         </div>
         <div class="card-content">
-          <h3>${tema.title}</h3>
-          <p>${tema.description}</p>
-          <div class="categorias">
-            ${(tema.categorias || []).map(t => `<span class="tag">${t}</span>`).join('')}
+          <div class="card-text">
+            <h3>${tema.title}</h3>
+            <p>${tema.description}</p>
+            <div class="tags">
+              ${(tema.categorias || []).map(t => `<span class="tag">${t}</span>`).join('')}
+            </div>
           </div>
-          <div class="card-actions">
-            <a class="button" href="https://wa.me/5551990163918?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20kit%20${encodeURIComponent(tema.title)}" target="_blank">Quero reservar</a>
-          </div>
+          <a class="button" href="https://wa.me/5551990163918?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20kit%20${encodeURIComponent(tema.title)}" target="_blank">Quero reservar</a>
         </div>
       </article>
     `).join('');
@@ -108,7 +108,7 @@ function filterAcervo(query) {
     return fullAcervo.filter(tema =>
         tema.title.toLowerCase().includes(lowerQuery) ||
         tema.description.toLowerCase().includes(lowerQuery) ||
-        (tema.categorias || []).some(cat => cat.toLowerCase().includes(lowerQuery))
+        (tema.tags || []).some(cat => cat.toLowerCase().includes(lowerQuery))
     );
 }
 
