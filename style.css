@@ -1,7 +1,8 @@
 :root {
     --bg: linear-gradient(to right, #faa6c0, #b7d5e5);
     --card: #ffffff;
-    --accent: #3f36f3;
+    --button: #3f36f3;
+    --buttonHover: #5a54d4;
 }
 
 * {
@@ -29,7 +30,7 @@ h2 {
 }
 
 a {
-    color: var(--accent);
+    color: var(--button);
     text-decoration: none;
 }
 
@@ -49,7 +50,7 @@ header .container {
     gap: 1.5rem;
 }
 
-.header-logo{
+.header-logo {
     display: flex;
     align-items: center;
 }
@@ -67,24 +68,34 @@ header p {
     justify-content: center;
 }
 
-.nav a {
+.nav a,
+.search-btn,
+.button,
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     padding: 10px 20px;
-    background-color: var(--accent);
+    background-color: var(--button);
     color: white;
-    border-radius: 6px;
-    font-weight: bold;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    border: 2px solid var(--button);
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 .nav a:hover,
 .search-btn:hover,
 .search-btn.active,
-.button:hover {
-    background-color: #5a54d4;
+.button:hover,
+.contact-item:hover {
+    background-color: var(--buttonHover);
     transform: translateY(-2px);
-    color: white;
-    border-color: var(--accent);
+    border-color: var(--buttonHover);
 }
 
 #search-input {
@@ -99,7 +110,7 @@ header p {
 
 #search-input:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--button);
 }
 
 #search-buttons {
@@ -108,17 +119,6 @@ header p {
     gap: 0.6rem;
     margin-bottom: 2rem;
     justify-content: center;
-}
-
-.search-btn {
-    padding: 8px 16px;
-    background-color: #f0f0f0;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .grid {
@@ -194,7 +194,7 @@ header p {
     white-space: pre-line;
 }
 
-.prices{
+.prices {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -214,34 +214,11 @@ header p {
     font-weight: 500;
 }
 
-.button {
-    padding: 10px 16px;
-    background-color: var(--accent);
-    color: white;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
 .contact-container {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 20px;
-}
-
-.contact-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 5px;
-    background-color: #f0f0f0;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    color: #000;
 }
 
 .contact-item img {
