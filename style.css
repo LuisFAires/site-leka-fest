@@ -55,6 +55,11 @@ header .container {
     align-items: center;
 }
 
+.header-logo img {
+    height: 120px;
+    width: auto;
+}
+
 header p {
     text-align: center;
     margin: 0;
