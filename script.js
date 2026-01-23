@@ -42,8 +42,10 @@ function renderAcervo(acervo) {
     grid.innerHTML = acervo.map(tema => `
       <article class="card">
         <div class="card-img-container">
+          <div class="card-img-text">Clique para ver mais fotos</div>
           ${(tema.images || []).map((img, index) => `<img src="images/acervo${img}" alt="${tema.title}" class="card-img" loading="lazy"${index === 0 ? ' fetchpriority="high"' : 'style="display:none"'}>`).join('')}
-        </div>
+          <div class="overlay"></div>
+          </div>
         <div class="card-content">
           <div class="card-text">
             <h3>${tema.title}</h3>
@@ -131,4 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
             renderAcervo(filtered);
         });
     });
+
+    document.querySelectorAll('.card-img-container').forEach(container => {
+        container.addEventListener('touchstart', (e) => {
+            e.currentTarget.children[0].style.opacity = '1';
+        });
+
+        container.addEventListener('touchend', (e) => {
+            e.currentTarget.children[0].style.opacity = '0';
+        });
+    });
+
+    document.addEventListener('contextmenu', (e) => { e.preventDefault(); });
 });
